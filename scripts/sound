@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+sed -i 's/defaults.ctl.card 0/defaults.ctl.card 1/' /usr/share/alsa/alsa.conf
+sed -i 's/defaults.pcm.card 0/defaults.pcm.card 1/' /usr/share/alsa/alsa.conf

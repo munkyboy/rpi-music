@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+chmod a+x /usr/local/bin/librespot
+
+apt-get update && apt-get install -yq libavahi-compat-libdnssd-dev
+
+cat <<-'EOF' > /etc/systemd/system/spotify.service
+[Unit]
+Description=A spotify playing daemon
+Documentation=https://github.com/librespot-org/librespot
+Wants=sound.target network-online.target
+After=sound.target network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/librespot \
+          --name multizone \
+          --device-type avr \
+          --bitrate 320 \
+          --initial-volume 100 \
+          --volume-ctrl fixed \
+          --enable-volume-normalisation \
+          --normalisation-pregain 3 \
+          --autoplay \
+          --onevent /usr/local/bin/spotify-event-handler
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target
+EOF
+systemctl enable spotify.service
+
+# control the amp on spotify events
+# list of events: https://github.com/librespot-org/librespot/blob/v0.1.6/src/player_event_handler.rs
+cat <<-'EOF' > /usr/local/bin/spotify-event-handler
+#!/usr/bin/env bash
+set -eo pipefail
+
+echo "$PLAYER_EVENT" > /var/log/spotify-last-event.log
+case $PLAYER_EVENT in
+  start|playing|change)
+    /usr/local/bin/amp on
+    ;;
+  stop)
+    /usr/local/bin/amp off
+    ;;
+esac
+EOF
+chmod a+x /usr/local/bin/spotify-event-handler

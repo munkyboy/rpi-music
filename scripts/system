@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+file=/usr/share/zoneinfo/${TZ_FILE}
+if [ ! -f $file ] ; then
+  echo "timezone file does not exist: ${file}" >&2
+  exit 1
+fi
+ln -sf $file /etc/localtime
