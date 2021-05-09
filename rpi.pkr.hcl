@@ -47,7 +47,7 @@ build {
   sources = ["source.arm.rpi"]
 
   provisioner "file" {
-    sources     = ["target/librespot"]
+    sources     = ["target/librespot", "target/resolv"]
     destination = "/usr/local/bin/"
   }
 

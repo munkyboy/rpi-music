@@ -1,0 +1,2 @@
+FROM golang:1.15
+RUN GOOS=linux GOARCH=arm GOARM=7 go get -v github.com/grandcat/zeroconf/examples/resolv

@@ -10,8 +10,16 @@ target/librespot: Dockerfile-librespot
 	@touch target/librespot
 	@docker rm -f librespot-armv7 &> /dev/null
 
+target/resolv: Dockerfile-resolv
+	@-mkdir -p target
+	docker build -t zeroconf-resolv .
+	@-docker rm -f zeroconf-resolv &> /dev/null
+	docker create --name zeroconf-resolv zeroconf-resolv
+	docker cp zeroconf-resolv:/go/bin/linux_arm/resolv ./target/resolv
+	@-docker rm -f zeroconf-resolv &> /dev/null
+
 SSH_PUB_KEY ?= $(HOME)/.ssh/id_rsa.pub
-target/rpi.img: rpi.pkr.hcl scripts/* target/librespot *.auto.pkrvars.hcl
+target/rpi.img: rpi.pkr.hcl scripts/* target/librespot target/resolv *.auto.pkrvars.hcl
 	@mkdir -p target
 	docker run --rm \
 		--privileged -v /dev:/dev \
