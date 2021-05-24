@@ -47,7 +47,7 @@ build {
   sources = ["source.arm.rpi"]
 
   provisioner "file" {
-    sources     = ["target/librespot", "target/resolv", "amp-httpd/target/amp-httpd-rpi"]
+    sources     = ["target/librespot", "amp-httpd/target/amp-httpd-rpi"]
     destination = "/usr/local/bin/"
   }
 
