@@ -17,13 +17,17 @@ case "$1" in
   "on")
     if grep -q '^0$' /sys/class/gpio/gpio${GPIO}/value ; then
       echo "1" > /sys/class/gpio/gpio${GPIO}/value
-      sleep 2
-      # TODO: remove this when we can control speakers
-      echo -e "<11PR01\r<12PR01\r<11VO10\r<12VO10\r" > /dev/ttyUSB0
     fi
   ;;
   "off")
     echo "0" > /sys/class/gpio/gpio${GPIO}/value
+  ;;
+  "status")
+    if grep -q 1 /sys/class/gpio/gpio${GPIO}/value ; then
+      echo "on"
+    else
+      echo "off"
+    fi
   ;;
   *)
     echo "unknown option. expecting exactly one argument of 'on' or 'off'" >&2
@@ -33,19 +37,15 @@ esac
 EOF
 chmod a+x /usr/local/bin/amp
 
-# allow serial port via access via WebSocket
-curl -fLs "https://github.com/chilipeppr/serial-port-json-server/releases/download/v1.96/serial-port-json-server-1.96_linux_arm.tar.gz" | \
-tar -C /usr/local/bin --strip-components 1 -xzvf - serial-port-json-server-1.96_linux_arm/serial-port-json-server
-
+# expose serial port via http service
 cat <<-'EOF' > /etc/systemd/system/amp.service
 [Unit]
-Description=Expose amp Serial control over WebSocket
-Documentation=https://github.com/chilipeppr/serial-port-json-server
+Description=Expose amp Serial control over HTTP
 Wants=network-online.target
 After=network-online.target
 
 [Service]
-ExecStart=/usr/local/bin/serial-port-json-server --regex USB0
+ExecStart=/usr/local/bin/amp-httpd-rpi
 Restart=always
 RestartSec=2
 

@@ -1,0 +1,21 @@
+version: '3.4'
+
+volumes:
+  gocache:
+  gopkg:
+
+services:
+  go:
+    image: golang:1.16
+    volumes:
+    - ./:/opt/project
+    - gocache:/go/cache # use a non-volatile cache directory to avoid re-compiling dependencies
+    - gopkg:/go/pkg # use a non-volatile pkg directory to avoid re-downloading dependencies
+    environment:
+    - GOOS
+    - GOARCH
+    - GOARM
+    - GOCACHE=/go/cache
+    - CGO_ENABLED=${CGO_ENABLED-0}
+    working_dir: /opt/project
+    entrypoint: ["go"]
