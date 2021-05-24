@@ -42,9 +42,6 @@ case $PLAYER_EVENT in
   start|playing|change)
     /usr/local/bin/amp on
     ;;
-  stop)
-    /usr/local/bin/amp off
-    ;;
 esac
 EOF
 chmod a+x /usr/local/bin/spotify-event-handler
@@ -55,7 +52,7 @@ cat <<-'EOF' > /usr/local/bin/amp-sleep
 set -eo pipefail
 
 if [ /var/log/spotify-last-event.log -nt /var/log/amp-sleep.log ] ; then
-  if grep -q '^paused$' /var/log/spotify-last-event.log; then
+  if grep -qE '^(paused|stop)$' /var/log/spotify-last-event.log; then
     age=$(expr $(date +%s) - $(date -r /var/log/spotify-last-event.log +%s))
     if [ $age -gt 900 ] ; then
       echo "turning amp off"
