@@ -24,8 +24,8 @@ ENV PKG_CONFIG_PATH_arm-unknown-linux-gnueabihf=/usr/lib/arm-linux-gnueabihf/pkg
     PKG_CONFIG_ALLOW_CROSS=1
 
 RUN mkdir -p /opt/src/librespot \
- && curl -Lfq "https://github.com/librespot-org/librespot/archive/refs/tags/v0.1.6.tar.gz" | tar -C /opt/src/librespot --strip-components 1 -xzvf - \
+ && curl -Lfq "https://github.com/librespot-org/librespot/archive/refs/tags/v0.2.0.tar.gz" | tar -C /opt/src/librespot --strip-components 1 -xzvf - \
  && cd /opt/src/librespot \
  && mkdir -p .cargo \
  && printf '[target.armv7-unknown-linux-gnueabihf]\nlinker = "arm-linux-gnueabihf-gcc"' >> .cargo/config \
- && cargo build --target=armv7-unknown-linux-gnueabihf --release --no-default-features --features alsa-backend,with-dns-sd
+ && cargo build --target=armv7-unknown-linux-gnueabihf --release --no-default-features --features alsa-backend

@@ -21,6 +21,7 @@ ExecStart=/usr/local/bin/librespot \
           --volume-ctrl fixed \
           --enable-volume-normalisation \
           --normalisation-pregain 3 \
+          --normalisation-gain-type track \
           --autoplay \
           --onevent /usr/local/bin/spotify-event-handler
 Restart=always

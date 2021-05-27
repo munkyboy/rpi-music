@@ -17,3 +17,8 @@ echo 0 > /var/lib/systemd/rfkill/platform-fe300000.mmcnr:wlan
 
 echo "pi-music" > /etc/hostname
 echo "127.0.0.1 pi-music" >> /etc/hosts
+
+# disable IPv6. Otherwise librespot mdns will include the v6 link local only address
+echo <<-EOF >> /etc/sysctl.d/00_disable_ipv6.conf
+net.ipv6.conf.all.disable_ipv6=1
+EOF
