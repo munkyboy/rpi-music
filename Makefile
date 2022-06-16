@@ -32,6 +32,7 @@ cache_clean:
 	docker volume rm rpi-music-packer-cache
 
 copy: target/rpi.img
+	# TODO: make this non-macos specific
 	@diskutil list /dev/disk2
 	@echo "#########\ncopying to /dev/disk2\n#########"
 	@read -p "Does this look correct? (y/n) " INPUT; if [ "$$INPUT" != "y" ] ; then echo "aborting"; exit 1 ; fi

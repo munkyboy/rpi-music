@@ -1,6 +1,6 @@
 # Raspberry Pi Music Server
 
-This repo builds a rapbian image which includes;
+This repo builds a raspbian image which includes;
 
 * librespot (Spotify connect service)
 * controller for Monoprice 6 zone amp
