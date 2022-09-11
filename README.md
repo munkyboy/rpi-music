@@ -40,6 +40,8 @@ To boot the image locally for testing, run:
 make run
 ```
 
+use default raspbian credentials for console login (pi/raspberry)
+
 ## Deploying
 
 Attach a SD card to your host computer then run:
