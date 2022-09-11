@@ -14,10 +14,11 @@ variable "tz" {
 }
 
 source "arm" "rpi" {
-  file_checksum         = "4522df4a29f9aac4b0166fbfee9f599dab55a997c855702bfe35329c13334668"
+  file_urls             = ["https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-04-07/2022-04-04-raspios-bullseye-armhf-lite.img.xz"]
+  file_target_extension = "xz"
+  file_unarchive_cmd    = ["xz","-d", "$ARCHIVE_PATH"]
   file_checksum_type    = "sha256"
-  file_target_extension = "zip"
-  file_urls             = ["https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2020-08-24/2020-08-20-raspios-buster-armhf-lite.zip"]
+  file_checksum         = "34987327503fac1076e53f3584f95ca5f41a6a790943f1979262d58d62b04175"
   image_build_method    = "reuse"
   image_chroot_env      = ["PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"]
   image_partitions {

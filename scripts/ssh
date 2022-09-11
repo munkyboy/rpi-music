@@ -1,6 +1,9 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+# default password is not set in bullseye
+echo pi:raspberry | chpasswd
+
 systemctl enable ssh.service
 echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
 
