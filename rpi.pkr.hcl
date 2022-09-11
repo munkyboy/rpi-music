@@ -38,7 +38,7 @@ source "arm" "rpi" {
     type         = "83"
   }
   image_path                   = "/opt/build.img"
-  image_size                   = "2G"
+  image_size                   = "3G"
   image_type                   = "dos"
   qemu_binary_destination_path = "/usr/bin/qemu-arm-static"
   qemu_binary_source_path      = "/usr/bin/qemu-arm-static"
@@ -48,7 +48,7 @@ build {
   sources = ["source.arm.rpi"]
 
   provisioner "file" {
-    sources     = ["target/librespot", "amp-httpd/target/amp-httpd-rpi"]
+    sources     = ["target/librespot", "amp-httpd/target/amp-httpd-rpi", "target/nqptp", "target/shairport-sync"]
     destination = "/usr/local/bin/"
   }
 
@@ -69,7 +69,8 @@ build {
       "scripts/net",
       "scripts/sound",
       "scripts/amp",
-      "scripts/spotify"
+      "scripts/spotify",
+      "scripts/shairport"
     ]
   }
 

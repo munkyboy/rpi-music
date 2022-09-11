@@ -4,17 +4,27 @@
 target/librespot: Dockerfile-librespot
 	@-mkdir -p target
 	docker build -t librespot-armv7 -f Dockerfile-librespot .
-	@docker rm -f librespot-armv7 &> /dev/null
+	@-docker rm -f librespot-armv7 &> /dev/null
 	docker create --name librespot-armv7 librespot-armv7
 	docker cp librespot-armv7:/opt/src/librespot/target/armv7-unknown-linux-gnueabihf/release/librespot ./target/librespot
 	@touch target/librespot
 	@docker rm -f librespot-armv7 &> /dev/null
 
+target/shairport-sync: Dockerfile-shairport
+	@-mkdir -p target
+	docker build --platform linux/arm/v7 -t shairport-armv7 -f Dockerfile-shairport .
+	@-docker rm -f shairport-armv7 &> /dev/null
+	docker create --platform linux/arm/v7 --name shairport-armv7 shairport-armv7
+	docker cp shairport-armv7:/usr/local/bin/nqptp target/
+	docker cp shairport-armv7:/usr/local/bin/shairport-sync target/
+	@touch target/nqptp target/shairport-sync
+	@docker rm -f shairport-armv7 &> /dev/null
+
 amp-httpd/target/amp-httpd-rpi:
 	cd amp-httpd && make target/amp-httpd-rpi
 
 SSH_PUB_KEY ?= $(HOME)/.ssh/id_rsa.pub
-target/rpi.img: rpi.pkr.hcl scripts/* target/librespot *.auto.pkrvars.hcl amp-httpd/target/amp-httpd-rpi
+target/rpi.img: rpi.pkr.hcl scripts/* target/librespot *.auto.pkrvars.hcl amp-httpd/target/amp-httpd-rpi target/shairport-sync target/nqptp
 	@mkdir -p target
 	docker run --rm \
 		--privileged -v /dev:/dev \

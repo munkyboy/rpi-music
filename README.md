@@ -3,6 +3,7 @@
 This repo builds a raspbian image which includes;
 
 * librespot (Spotify connect service)
+* shairport (airplay)
 * controller for Monoprice 6 zone amp
 
 The amp is expected to be plugged into a [controllable power

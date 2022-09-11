@@ -1,0 +1,45 @@
+#!/usr/bin/env bash
+set -eo pipefail
+
+chmod a+x /usr/local/bin/nqptp /usr/local/bin/shairport-sync
+
+DEBIAN_FRONTEND=noninteractive apt-get install -yq libsoxr0 libsodium23 libavcodec58 libavutil56 libplist3 libconfig9
+
+cat <<-'EOF' > /etc/systemd/system/nqptp.service
+[Unit]
+Description=A time sync daemon supporting AirPlay 2
+Documentation=https://github.com/mikebrady/shairport-sync/tree/development
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/nqptp
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target
+EOF
+systemctl enable nqptp.service
+
+cat <<-'EOF' > /etc/systemd/system/shairport.service
+[Unit]
+Description=An AirPlay 2 receiver daemon
+Documentation=https://github.com/mikebrady/shairport-sync/tree/development
+Wants=sound.target network-online.target nqptp.service
+After=sound.target network-online.target
+
+[Service]
+ExecStart=/usr/local/bin/shairport-sync \
+          --name multizone
+Restart=always
+RestartSec=2
+
+[Install]
+WantedBy=default.target
+EOF
+systemctl enable shairport.service
+
+# sanity check
+/usr/local/bin/shairport-sync -V
+/usr/local/bin/nqptp -V

@@ -1,0 +1,35 @@
+FROM buildpack-deps:bullseye-scm
+
+RUN apt-get update \
+ && DEBIAN_FRONTEND=noninteractive apt-get install -yq --no-install-recommends build-essential git xmltoman autoconf automake libtool \
+    libpopt-dev libconfig-dev libasound2-dev avahi-daemon libavahi-client-dev libssl-dev libsoxr-dev \
+    libplist-dev libsodium-dev libavutil-dev libavcodec-dev libavformat-dev uuid-dev libgcrypt-dev xxd
+
+# build nqptp
+RUN mkdir -p /opt/src \
+ && cd /opt/src \
+ && COMMIT=3fc432d7c1805925ecd89a05c266517ff39529a7 \
+ && git clone https://github.com/mikebrady/nqptp.git \
+ && cd nqptp \
+ && git checkout $COMMIT \
+ && autoreconf -fi \
+ && ./configure \
+ && make -j4 \
+ && make install
+
+# build shairport-sync
+RUN cd /opt/src \
+ && COMMIT=b178e0e0a5dc631e267920cd84e909b3f14a4285 \
+ && git clone https://github.com/mikebrady/shairport-sync.git \
+ && cd shairport-sync \
+ && git checkout $COMMIT \
+ && autoreconf -fi \
+ && ./configure \
+      --with-airplay-2 \
+      --with-ssl=openssl \
+      --with-avahi \
+      --with-alsa \
+      --with-soxr \
+      --with-metadata \
+  && make -j4 \
+  && make install
