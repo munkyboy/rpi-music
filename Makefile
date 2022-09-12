@@ -41,4 +41,5 @@ copy: target/rpi.img
 	sudo dd bs=1m if=target/rpi.img of=/dev/disk2
 
 run: target/rpi.img
-	docker run -it -v $(PWD)/target/rpi.img:/sdcard/filesystem.img lukechilds/dockerpi:vm pi3
+	@echo "to connect via SSH, run 'ssh pi@localhost -p 5022'"
+	docker run -it -v $(PWD)/target/rpi.img:/sdcard/filesystem.img -p 5022:5022 lukechilds/dockerpi:vm pi3
