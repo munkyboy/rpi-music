@@ -3,7 +3,7 @@ set -eo pipefail
 
 chmod a+x /usr/local/bin/librespot
 
-apt-get update && apt-get install -yq libavahi-compat-libdnssd-dev
+DEBIAN_FRONTEND=noninteractive apt-get install -yq libavahi-compat-libdnssd-dev
 
 cat <<-'EOF' > /etc/systemd/system/spotify.service
 [Unit]

@@ -7,3 +7,5 @@ if [ ! -f $file ] ; then
   exit 1
 fi
 ln -sf $file /etc/localtime
+
+apt-get update
