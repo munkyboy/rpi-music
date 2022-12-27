@@ -1,5 +1,5 @@
 variable "wifi_ssid" {
-  type    = string
+  type = string
 }
 
 variable "wifi_password" {
@@ -13,33 +13,34 @@ variable "tz" {
   default = "America/Los_Angeles"
 }
 
+# Example: https://github.com/mkaczanowski/packer-builder-arm/blob/master/boards/raspberry-pi/raspbian-resize.json
 source "arm" "rpi" {
   file_urls             = ["https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-04-07/2022-04-04-raspios-bullseye-armhf-lite.img.xz"]
   file_target_extension = "xz"
-  file_unarchive_cmd    = ["xz","-d", "$ARCHIVE_PATH"]
+  file_unarchive_cmd    = ["xz", "-d", "$ARCHIVE_PATH"]
   file_checksum_type    = "sha256"
   file_checksum         = "34987327503fac1076e53f3584f95ca5f41a6a790943f1979262d58d62b04175"
-  image_build_method    = "reuse"
-  image_chroot_env      = ["PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"]
+  image_build_method    = "resize"
+  image_path            = "/opt/build.img"
+  image_size            = "3G"
+  image_type            = "dos"
   image_partitions {
-    filesystem   = "vfat"
-    mountpoint   = "/boot"
     name         = "boot"
-    size         = "256M"
-    start_sector = "8192"
     type         = "c"
+    start_sector = "8192"
+    filesystem   = "vfat"
+    size         = "256M"
+    mountpoint   = "/boot"
   }
   image_partitions {
-    filesystem   = "ext4"
-    mountpoint   = "/"
     name         = "root"
-    size         = "0"
-    start_sector = "532480"
     type         = "83"
+    start_sector = "532480"
+    filesystem   = "ext4"
+    size         = "0"
+    mountpoint   = "/"
   }
-  image_path                   = "/opt/build.img"
-  image_size                   = "3G"
-  image_type                   = "dos"
+  image_chroot_env             = ["PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"]
   qemu_binary_destination_path = "/usr/bin/qemu-arm-static"
   qemu_binary_source_path      = "/usr/bin/qemu-arm-static"
 }

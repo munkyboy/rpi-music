@@ -26,14 +26,15 @@ amp-httpd/target/amp-httpd-rpi:
 SSH_PUB_KEY ?= $(HOME)/.ssh/id_rsa.pub
 target/rpi.img: rpi.pkr.hcl scripts/* target/librespot *.auto.pkrvars.hcl amp-httpd/target/amp-httpd-rpi target/shairport-sync target/nqptp
 	@mkdir -p target
-	docker run --rm \
+	docker run --rm -it \
 		--privileged -v /dev:/dev \
 		-v rpi-music-packer-cache:/tmp/packer_cache \
 		-e PACKER_CACHE_DIR=/tmp/packer_cache \
+		-e PACKER_LOG=1 \
 		-v $(SSH_PUB_KEY):/root/.ssh/id_rsa.pub \
 		-v $(PWD):/build --workdir /build \
-		mkaczanowski/packer-builder-arm \
-		build .
+		mkaczanowski/packer-builder-arm@sha256:b04b5a0b3d03b12b57ffa8f89bd5fed76084f16864c226e0426f773b43dbcafa \
+		build -on-error=ask .
 
 clean:
 	rm -rf target
