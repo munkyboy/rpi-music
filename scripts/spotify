@@ -40,7 +40,7 @@ set -eo pipefail
 
 echo "$PLAYER_EVENT" > /var/log/spotify-last-event.log
 case $PLAYER_EVENT in
-  started|playing|changed)
+  started|playing|changed|preloading)
     /usr/local/bin/amp on
     ;;
 esac
