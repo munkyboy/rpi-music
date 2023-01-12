@@ -17,6 +17,8 @@ func NewWeb(amp *Amp) *echo.Echo {
 	e.PUT("/zones/:id/power", handleSetPower(amp))
 	e.GET("/zones/:id/volume", handleGetVolume(amp))
 	e.PUT("/zones/:id/volume", handleSetVolume(amp))
+	e.GET("/zones/:id/source", handleGetSource(amp))
+	e.PUT("/zones/:id/source", handleSetSource(amp))
 
 	return e
 }
@@ -25,6 +27,7 @@ type zone struct {
 	ID     uint `param:"id"`
 	Power  bool `form:"power"`
 	Volume uint `form:"volume"`
+	Source uint `form:"source"`
 }
 
 func setZone(next echo.HandlerFunc) echo.HandlerFunc {
@@ -74,6 +77,27 @@ func handleSetVolume(amp *Amp) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		z, _ := c.Get("zone").(zone)
 		if err := amp.SetVolume(z.ID, z.Volume); err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		return c.String(http.StatusOK, "ok\n")
+	}
+}
+
+func handleGetSource(amp *Amp) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		z, _ := c.Get("zone").(zone)
+		v, err := amp.GetSource(z.ID)
+		if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		return c.String(http.StatusOK, fmt.Sprintf("%d\n", v))
+	}
+}
+
+func handleSetSource(amp *Amp) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		z, _ := c.Get("zone").(zone)
+		if err := amp.SetSource(z.ID, z.Source); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		return c.String(http.StatusOK, "ok\n")

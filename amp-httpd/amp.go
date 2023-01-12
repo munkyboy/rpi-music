@@ -41,6 +41,24 @@ func (amp *Amp) SetVolume(zone uint, volume uint) error {
 	return nil
 }
 
+func (amp *Amp) GetSource(zone uint) (uint, error) {
+	if v, err := amp.sendSingleZoneInquiry(fmt.Sprintf("?%dCH\r", zone)); err != nil {
+		return 0, err
+	} else {
+		return uint(v), nil
+	}
+}
+
+func (amp *Amp) SetSource(zone uint, source uint) error {
+	if source < 1 || source > 6 {
+		return fmt.Errorf("source must be between 1 and 6")
+	}
+	if err := amp.sendCommand(fmt.Sprintf("<%dCH%02d\r", zone, source)); err != nil {
+		return err
+	}
+	return nil
+}
+
 func (amp *Amp) GetPower(zone uint) (bool, error) {
 	if v, err := amp.sendSingleZoneInquiry(fmt.Sprintf("?%dPR\r", zone)); err != nil {
 		return false, err
