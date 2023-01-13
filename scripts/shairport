@@ -22,6 +22,16 @@ WantedBy=default.target
 EOF
 systemctl enable nqptp.service
 
+# config for shairport
+# https://github.com/mikebrady/shairport-sync/blob/development/scripts/shairport-sync.conf
+cat <<-'EOF' > /etc/shairport-sync.conf
+general =
+{
+  name = "multizone";
+  ignore_volume_control = "yes";
+}
+EOF
+
 cat <<-'EOF' > /etc/systemd/system/shairport.service
 [Unit]
 Description=An AirPlay 2 receiver daemon
@@ -30,8 +40,7 @@ Wants=sound.target network-online.target nqptp.service
 After=sound.target network-online.target
 
 [Service]
-ExecStart=/usr/local/bin/shairport-sync \
-          --name multizone
+ExecStart=/usr/local/bin/shairport-sync -c /etc/shairport-sync.conf
 Restart=always
 RestartSec=2
 
