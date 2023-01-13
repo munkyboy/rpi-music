@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
+DEBIAN_FRONTEND=noninteractive apt-get install -yq gpiod
+
 # script to control turning amp on and off
 cat <<-'EOF' > /usr/local/bin/amp
 #!/usr/bin/env bash
@@ -8,26 +10,12 @@ set -eo pipefail
 
 GPIO=23
 
-if [ ! -d /sys/class/gpio/gpio${GPIO} ] ; then
-  echo "$GPIO" > /sys/class/gpio/export
-  echo "out" > /sys/class/gpio/gpio${GPIO}/direction
-fi
-
 case "$1" in
   "on")
-    if grep -q '^0$' /sys/class/gpio/gpio${GPIO}/value ; then
-      echo "1" > /sys/class/gpio/gpio${GPIO}/value
-    fi
+    gpioset gpiochip0 ${GPIO}=1
   ;;
   "off")
-    echo "0" > /sys/class/gpio/gpio${GPIO}/value
-  ;;
-  "status")
-    if grep -q 1 /sys/class/gpio/gpio${GPIO}/value ; then
-      echo "on"
-    else
-      echo "off"
-    fi
+    gpioset gpiochip0 ${GPIO}=0
   ;;
   *)
     echo "unknown option. expecting exactly one argument of 'on' or 'off'" >&2
