@@ -49,13 +49,16 @@ cat <<-'EOF' > /usr/local/bin/amp-sleep
 #!/usr/bin/env bash
 set -eo pipefail
 
-if [ /var/log/spotify-last-event.log -nt /var/log/amp-sleep.log ] ; then
-  if grep -qE '^(paused|stopped)$' /var/log/spotify-last-event.log; then
-    age=$(expr $(date +%s) - $(date -r /var/log/spotify-last-event.log +%s))
+spotify_event=/var/run/spotify-last-event
+amp_sleep=/var/run/amp-sleep
+
+if [ $spotify_event -nt $amp_sleep ] ; then
+  if grep -qE '^(paused|stopped)$' $spotify_event; then
+    age=$(expr $(date +%s) - $(date -r $spotify_event +%s))
     if [ $age -gt 900 ] ; then
       echo "turning amp off"
       /usr/local/bin/amp off
-      touch /var/log/amp-sleep.log
+      touch $amp_sleep
     fi
   fi
 fi

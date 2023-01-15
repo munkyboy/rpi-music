@@ -38,7 +38,7 @@ cat <<-'EOF' > /usr/local/bin/spotify-event-handler
 #!/usr/bin/env bash
 set -eo pipefail
 
-echo "$PLAYER_EVENT" > /var/log/spotify-last-event.log
+echo "$PLAYER_EVENT" > /var/run/spotify-last-event
 case $PLAYER_EVENT in
   started|playing|changed|preloading)
     /usr/local/bin/amp on
