@@ -16,6 +16,12 @@ type Amp struct {
 	mutex sync.Mutex
 }
 
+type AmpOffError struct{}
+
+func (m *AmpOffError) Error() string {
+	return "amp is off"
+}
+
 // real max is 38 but we don't want to blow speakers
 const MaxVolume uint = 20
 
@@ -116,6 +122,12 @@ func (amp *Amp) readReply(cmdLen int) (reply string, err error) {
 		reply = reply + scanner.Text() + "\n"
 	}
 	// fmt.Printf("got reply: %q\n", reply)
+	// when amp is off, our serial library is configured to timeout and will
+	// return an empty string. return an AppOffError in this case.
+	if len(reply) == 0 {
+		err = new(AmpOffError)
+		return
+	}
 
 	if err = scanner.Err(); err != nil {
 		return

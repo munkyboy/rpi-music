@@ -45,7 +45,9 @@ func handleGetPower(amp *Amp) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		z, _ := c.Get("zone").(zone)
 		v, err := amp.GetPower(z.ID)
-		if err != nil {
+		if _, ok := err.(*AmpOffError); ok {
+			return c.String(http.StatusOK, "false\n")
+		} else if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		return c.String(http.StatusOK, fmt.Sprintf("%t\n", v))
@@ -55,7 +57,7 @@ func handleGetPower(amp *Amp) echo.HandlerFunc {
 func handleSetPower(amp *Amp) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		z, _ := c.Get("zone").(zone)
-		if err := amp.SetPower(z.ID, z.Power); err != nil {
+		if err := ignoreAmpOff(amp.SetPower(z.ID, z.Power)); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		return c.String(http.StatusOK, "ok\n")
@@ -66,7 +68,9 @@ func handleGetVolume(amp *Amp) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		z, _ := c.Get("zone").(zone)
 		v, err := amp.GetVolume(z.ID)
-		if err != nil {
+		if _, ok := err.(*AmpOffError); ok {
+			return c.String(http.StatusOK, "0\n")
+		} else if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		return c.String(http.StatusOK, fmt.Sprintf("%d\n", v))
@@ -76,7 +80,7 @@ func handleGetVolume(amp *Amp) echo.HandlerFunc {
 func handleSetVolume(amp *Amp) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		z, _ := c.Get("zone").(zone)
-		if err := amp.SetVolume(z.ID, z.Volume); err != nil {
+		if err := ignoreAmpOff(amp.SetVolume(z.ID, z.Volume)); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		return c.String(http.StatusOK, "ok\n")
@@ -87,7 +91,9 @@ func handleGetSource(amp *Amp) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		z, _ := c.Get("zone").(zone)
 		v, err := amp.GetSource(z.ID)
-		if err != nil {
+		if _, ok := err.(*AmpOffError); ok {
+			return c.String(http.StatusOK, "1\n")
+		} else if err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		return c.String(http.StatusOK, fmt.Sprintf("%d\n", v))
@@ -97,9 +103,16 @@ func handleGetSource(amp *Amp) echo.HandlerFunc {
 func handleSetSource(amp *Amp) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		z, _ := c.Get("zone").(zone)
-		if err := amp.SetSource(z.ID, z.Source); err != nil {
+		if err := ignoreAmpOff(amp.SetSource(z.ID, z.Source)); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		return c.String(http.StatusOK, "ok\n")
 	}
+}
+
+func ignoreAmpOff(err error) error {
+	if _, ok := err.(*AmpOffError); ok {
+		return nil
+	}
+	return err
 }
