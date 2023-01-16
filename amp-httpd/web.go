@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"net/http"
+	"os/exec"
 
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
@@ -12,14 +13,17 @@ func NewWeb(amp *Amp) *echo.Echo {
 	e := echo.New()
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
-	e.Use(setZone)
-	e.GET("/zones/:id/power", handleGetZonePower(amp))
-	e.PUT("/zones/:id/power", handleSetZonePower(amp))
-	e.GET("/zones/:id/volume", handleGetVolume(amp))
-	e.PUT("/zones/:id/volume", handleSetZoneVolume(amp))
-	e.GET("/zones/:id/source", handleGetSource(amp))
-	e.PUT("/zones/:id/source", handleSetZoneSource(amp))
+	zones := e.Group("/zones")
+	zones.Use(setZone)
+	zones.GET("/:id/power", handleGetZonePower(amp))
+	zones.PUT("/:id/power", handleSetZonePower(amp))
+	zones.GET("/:id/volume", handleGetVolume(amp))
+	zones.PUT("/:id/volume", handleSetZoneVolume(amp))
+	zones.GET("/:id/source", handleGetSource(amp))
+	zones.PUT("/:id/source", handleSetZoneSource(amp))
 
+	e.GET("/power", handleGetAmpPower(amp))
+	e.PUT("/power", handleSetAmpPower(amp))
 	return e
 }
 
@@ -104,6 +108,37 @@ func handleSetZoneSource(amp *Amp) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		z, _ := c.Get("zone").(zone)
 		if err := ignoreAmpOff(amp.SetSource(z.ID, z.Source)); err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		return c.String(http.StatusOK, "ok\n")
+	}
+}
+
+func handleGetAmpPower(amp *Amp) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		// get power of any zone as a proxy for amp being on
+		_, err := amp.GetPower(11)
+		if _, ok := err.(*AmpOffError); ok {
+			return c.String(http.StatusOK, "false\n")
+		} else if err != nil {
+			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
+		}
+		return c.String(http.StatusOK, "true\n")
+	}
+}
+
+func handleSetAmpPower(amp *Amp) echo.HandlerFunc {
+	return func(c echo.Context) error {
+		power := c.FormValue("power")
+		cmd := exec.Command("/usr/local/bin/amp")
+		if power == "0" {
+			cmd.Args = append(cmd.Args, "off")
+		} else if power == "1" {
+			cmd.Args = append(cmd.Args, "on")
+		} else {
+			return echo.NewHTTPError(http.StatusBadRequest, "expecting power value of `0` or `1`")
+		}
+		if err := cmd.Run(); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
 		return c.String(http.StatusOK, "ok\n")
