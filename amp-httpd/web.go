@@ -13,12 +13,12 @@ func NewWeb(amp *Amp) *echo.Echo {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 	e.Use(setZone)
-	e.GET("/zones/:id/power", handleGetPower(amp))
-	e.PUT("/zones/:id/power", handleSetPower(amp))
+	e.GET("/zones/:id/power", handleGetZonePower(amp))
+	e.PUT("/zones/:id/power", handleSetZonePower(amp))
 	e.GET("/zones/:id/volume", handleGetVolume(amp))
-	e.PUT("/zones/:id/volume", handleSetVolume(amp))
+	e.PUT("/zones/:id/volume", handleSetZoneVolume(amp))
 	e.GET("/zones/:id/source", handleGetSource(amp))
-	e.PUT("/zones/:id/source", handleSetSource(amp))
+	e.PUT("/zones/:id/source", handleSetZoneSource(amp))
 
 	return e
 }
@@ -41,7 +41,7 @@ func setZone(next echo.HandlerFunc) echo.HandlerFunc {
 	}
 }
 
-func handleGetPower(amp *Amp) echo.HandlerFunc {
+func handleGetZonePower(amp *Amp) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		z, _ := c.Get("zone").(zone)
 		v, err := amp.GetPower(z.ID)
@@ -54,7 +54,7 @@ func handleGetPower(amp *Amp) echo.HandlerFunc {
 	}
 }
 
-func handleSetPower(amp *Amp) echo.HandlerFunc {
+func handleSetZonePower(amp *Amp) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		z, _ := c.Get("zone").(zone)
 		if err := ignoreAmpOff(amp.SetPower(z.ID, z.Power)); err != nil {
@@ -77,7 +77,7 @@ func handleGetVolume(amp *Amp) echo.HandlerFunc {
 	}
 }
 
-func handleSetVolume(amp *Amp) echo.HandlerFunc {
+func handleSetZoneVolume(amp *Amp) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		z, _ := c.Get("zone").(zone)
 		if err := ignoreAmpOff(amp.SetVolume(z.ID, z.Volume)); err != nil {
@@ -100,7 +100,7 @@ func handleGetSource(amp *Amp) echo.HandlerFunc {
 	}
 }
 
-func handleSetSource(amp *Amp) echo.HandlerFunc {
+func handleSetZoneSource(amp *Amp) echo.HandlerFunc {
 	return func(c echo.Context) error {
 		z, _ := c.Get("zone").(zone)
 		if err := ignoreAmpOff(amp.SetSource(z.ID, z.Source)); err != nil {
