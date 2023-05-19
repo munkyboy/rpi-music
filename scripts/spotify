@@ -3,14 +3,15 @@ set -eo pipefail
 
 chmod a+x /usr/local/bin/librespot
 
-DEBIAN_FRONTEND=noninteractive apt-get install -yq libavahi-compat-libdnssd-dev
+DEBIAN_FRONTEND=noninteractive apt-get install -yq libavahi-compat-libdnssd-dev avahi-daemon
 
 cat <<-'EOF' > /etc/systemd/system/spotify.service
 [Unit]
 Description=A spotify playing daemon
 Documentation=https://github.com/librespot-org/librespot
 Wants=sound.target network-online.target
-After=sound.target network-online.target
+Requires=avahi-daemon.service
+After=sound.target network-online.target avahi-daemon.service
 
 [Service]
 ExecStart=/usr/local/bin/librespot \
