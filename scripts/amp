@@ -52,10 +52,13 @@ set -eo pipefail
 spotify_event=/var/run/spotify-last-event
 amp_sleep=/var/run/amp-sleep
 
+# last spotify event is newer than last time we turned off the amp
 if [ $spotify_event -nt $amp_sleep ] ; then
-  if grep -qE '^(paused|stopped)$' $spotify_event; then
+  # we are not playing
+  if grep -vqE '^playing$' $spotify_event; then
     age=$(expr $(date +%s) - $(date -r $spotify_event +%s))
-    if [ $age -gt 900 ] ; then
+    # event is older than 30 minutes
+    if [ $age -gt 1800 ] ; then
       echo "turning amp off"
       /usr/local/bin/amp off
       touch $amp_sleep
