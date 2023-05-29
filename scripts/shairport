@@ -37,7 +37,8 @@ cat <<-'EOF' > /etc/systemd/system/shairport.service
 Description=An AirPlay 2 receiver daemon
 Documentation=https://github.com/mikebrady/shairport-sync/tree/development
 Wants=sound.target network-online.target nqptp.service
-After=sound.target network-online.target
+Requires=avahi-daemon.service
+After=sound.target network-online.target avahi-daemon.service
 
 [Service]
 ExecStart=/usr/local/bin/shairport-sync -c /etc/shairport-sync.conf
