@@ -42,7 +42,7 @@ set -eo pipefail
 echo "$PLAYER_EVENT" > /var/run/spotify-last-event
 case $PLAYER_EVENT in
   started|playing|changed|preloading)
-    /usr/local/bin/amp on
+    curl -f -X PUT -d power=1 http://localhost:8080/power
     ;;
 esac
 EOF

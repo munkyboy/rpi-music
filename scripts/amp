@@ -60,7 +60,7 @@ if [ $spotify_event -nt $amp_sleep ] ; then
     # event is older than 30 minutes
     if [ $age -gt 1800 ] ; then
       echo "turning amp off"
-      /usr/local/bin/amp off
+      curl -f -X PUT -d power=0 http://localhost:8080/power
       touch $amp_sleep
     fi
   fi
