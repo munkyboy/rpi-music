@@ -141,6 +141,8 @@ func handleSetAmpPower(amp *Amp) echo.HandlerFunc {
 		if err := cmd.Run(); err != nil {
 			return echo.NewHTTPError(http.StatusInternalServerError, err.Error())
 		}
+		// run an arbitrary command to flush the initial prompt from the serial device
+		amp.GetPower(11)
 		return c.String(http.StatusOK, "ok\n")
 	}
 }
