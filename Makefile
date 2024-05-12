@@ -33,7 +33,7 @@ target/rpi.img: rpi.pkr.hcl $(wildcard scripts/*) target/librespot $(wildcard *.
 		-e PACKER_LOG=1 \
 		-v $(SSH_PUB_KEY):/root/.ssh/id_rsa.pub \
 		-v $(PWD):/build --workdir /build \
-		mkaczanowski/packer-builder-arm@sha256:b04b5a0b3d03b12b57ffa8f89bd5fed76084f16864c226e0426f773b43dbcafa \
+		mkaczanowski/packer-builder-arm:1.0.9 \
 		build -on-error=ask .
 
 clean:
