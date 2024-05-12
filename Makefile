@@ -24,7 +24,7 @@ amp-httpd/target/amp-httpd-rpi:
 	cd amp-httpd && make target/amp-httpd-rpi
 
 SSH_PUB_KEY ?= $(HOME)/.ssh/id_rsa.pub
-target/rpi.img: rpi.pkr.hcl scripts/* target/librespot *.auto.pkrvars.hcl amp-httpd/target/amp-httpd-rpi target/shairport-sync target/nqptp
+target/rpi.img: rpi.pkr.hcl $(wildcard scripts/*) target/librespot $(wildcard *.auto.pkrvars.hcl) amp-httpd/target/amp-httpd-rpi target/shairport-sync target/nqptp
 	@mkdir -p target
 	docker run --rm -it \
 		--privileged -v /dev:/dev \
@@ -42,14 +42,15 @@ clean:
 cache_clean:
 	docker volume rm rpi-music-packer-cache
 
+TARGET_DEVICE=/dev/disk4
 copy: target/rpi.img
 	# TODO: make this non-macos specific
-	@diskutil list /dev/disk2
-	@echo "#########\ncopying to /dev/disk2\n#########"
+	@diskutil list $(TARGET_DEVICE)
+	@echo "#########\ncopying to $(TARGET_DEVICE)\n#########"
 	@read -p "Does this look correct? (y/n) " INPUT; if [ "$$INPUT" != "y" ] ; then echo "aborting"; exit 1 ; fi
 	@echo "continuing"
-	@diskutil unmountDisk /dev/disk2
-	sudo dd bs=1m if=target/rpi.img of=/dev/disk2
+	@diskutil unmountDisk $(TARGET_DEVICE)
+	sudo dd bs=1m if=target/rpi.img of=$(TARGET_DEVICE)
 
 run: target/rpi.img
 	@echo "to connect via SSH, run 'ssh pi@localhost -p 5022'"
