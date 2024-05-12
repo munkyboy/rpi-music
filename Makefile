@@ -3,7 +3,7 @@
 
 target/librespot: Dockerfile-librespot
 	@-mkdir -p target
-	docker build -t librespot-armv7 -f Dockerfile-librespot .
+	docker build --load -t librespot-armv7 -f Dockerfile-librespot .
 	@-docker rm -f librespot-armv7 &> /dev/null
 	docker create --name librespot-armv7 librespot-armv7
 	docker cp librespot-armv7:/opt/src/librespot/target/armv7-unknown-linux-gnueabihf/release/librespot ./target/librespot
@@ -12,7 +12,7 @@ target/librespot: Dockerfile-librespot
 
 target/shairport-sync: Dockerfile-shairport
 	@-mkdir -p target
-	docker build --platform linux/arm/v7 -t shairport-armv7 -f Dockerfile-shairport .
+	docker build --load --platform linux/arm/v7 -t shairport-armv7 -f Dockerfile-shairport .
 	@-docker rm -f shairport-armv7 &> /dev/null
 	docker create --platform linux/arm/v7 --name shairport-armv7 shairport-armv7
 	docker cp shairport-armv7:/usr/local/bin/nqptp target/
