@@ -3,7 +3,7 @@ set -eo pipefail
 
 chmod a+x /usr/local/bin/nqptp /usr/local/bin/shairport-sync
 
-DEBIAN_FRONTEND=noninteractive apt-get install -yq libsoxr0 libsodium23 libavcodec58 libavutil56 libplist3 libconfig9
+DEBIAN_FRONTEND=noninteractive apt-get install -yq libsoxr0 libsodium23 libavcodec59 libavutil57 libplist3 libconfig9
 
 cat <<-'EOF' > /etc/systemd/system/nqptp.service
 [Unit]

@@ -3,22 +3,22 @@
 
 target/librespot: Dockerfile-librespot
 	@-mkdir -p target
-	docker build --load -t librespot-armv7 -f Dockerfile-librespot .
-	@-docker rm -f librespot-armv7 &> /dev/null
-	docker create --name librespot-armv7 librespot-armv7
-	docker cp librespot-armv7:/opt/src/librespot/target/armv7-unknown-linux-gnueabihf/release/librespot ./target/librespot
+	docker build --load -t librespot-arm64 -f Dockerfile-librespot .
+	@-docker rm -f librespot-arm64 &> /dev/null
+	docker create --name librespot-arm64 librespot-arm64
+	docker cp librespot-arm64:/opt/src/librespot/target/aarch64-unknown-linux-gnu/release/librespot ./target/librespot
 	@touch target/librespot
-	@docker rm -f librespot-armv7 &> /dev/null
+	@docker rm -f librespot-arm64 &> /dev/null
 
 target/shairport-sync: Dockerfile-shairport
 	@-mkdir -p target
-	docker build --load --platform linux/arm/v7 -t shairport-armv7 -f Dockerfile-shairport .
-	@-docker rm -f shairport-armv7 &> /dev/null
-	docker create --platform linux/arm/v7 --name shairport-armv7 shairport-armv7
-	docker cp shairport-armv7:/usr/local/bin/nqptp target/
-	docker cp shairport-armv7:/usr/local/bin/shairport-sync target/
+	docker build --load --platform linux/arm64 -t shairport-arm64 -f Dockerfile-shairport .
+	@-docker rm -f shairport-arm64 &> /dev/null
+	docker create --platform linux/arm64 --name shairport-arm64 shairport-arm64
+	docker cp shairport-arm64:/usr/local/bin/nqptp target/
+	docker cp shairport-arm64:/usr/local/bin/shairport-sync target/
 	@touch target/nqptp target/shairport-sync
-	@docker rm -f shairport-armv7 &> /dev/null
+	@docker rm -f shairport-arm64 &> /dev/null
 
 amp-httpd/target/amp-httpd-rpi:
 	cd amp-httpd && make target/amp-httpd-rpi
@@ -52,6 +52,26 @@ copy: target/rpi.img
 	@diskutil unmountDisk $(TARGET_DEVICE)
 	sudo dd bs=1m if=target/rpi.img of=$(TARGET_DEVICE)
 
-run: target/rpi.img
-	@echo "to connect via SSH, run 'ssh pi@localhost -p 5022'"
-	docker run -it -v $(PWD)/target/rpi.img:/sdcard/filesystem.img -p 5022:5022 lukechilds/dockerpi:vm pi3
+# Support for running image via QEMU
+## convert img to qcow
+target/rpi.qcow2: target/rpi.img
+	qemu-img convert -f raw -O qcow2 $< $@
+	qemu-img resize $@ 4G
+
+## files embedded in raspbian image extracted for
+device_tree_blob = bcm2710-rpi-3-b-plus.dtb
+kernel_img = kernel8.img
+target/$(kernel_img): target/rpi.img
+	docker run -it --rm --privileged -v $$PWD/target:/opt/target -w /opt alpine ash -c "mkdir -p boot; mount -o loop,offset=4194304 target/rpi.img boot; cp boot/$(device_tree_blob) boot/$(kernel_img) target/"
+
+run: target/$(kernel_img) target/rpi.qcow2
+	@echo "after this is up, run: ssh pi@localhost -p 2222"
+	qemu-system-aarch64 \
+		-machine raspi3b \
+		-serial stdio \
+		-dtb target/$(device_tree_blob) \
+		-kernel target/$(kernel_img) \
+		-sd target/rpi.qcow2 \
+		-append "earlyprintk loglevel=8 console=ttyAMA0,115200 dwc_otg.lpm_enable=0 root=/dev/mmcblk0p2 rw rootdelay=1" \
+		-device usb-net,netdev=net0 -netdev user,id=net0,hostfwd=tcp::2222-:22 \
+		-usb -device usb-mouse -device usb-kbd

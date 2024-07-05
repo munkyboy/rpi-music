@@ -1,11 +1,28 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-file=/usr/share/zoneinfo/${TZ_FILE}
-if [ ! -f $file ] ; then
-  echo "timezone file does not exist: ${file}" >&2
-  exit 1
-fi
-ln -sf $file /etc/localtime
+# set TZ
+raspi-config nonint do_change_timezone "$TZ_FILE"
+
+# kernel messages over serial console
+raspi-config nonint do_serial_hw 0
+raspi-config nonint do_serial_cons 0
+
+# boot to console
+raspi-config nonint do_boot_behaviour B1
+
+# turn off quiet mode (I don't think this works)
+sed -i 's: quiet::' /boot/cmdline.txt
+sed -i 's: init=/usr/lib/raspberrypi-sys-mods/firstboot::' /boot/cmdline.txt
+
+# set keyboard
+raspi-config nonint do_configure_keyboard us
+
+# set hostname
+raspi-config nonint do_hostname pi-homebridge
+
+# this service wants to create a user on boot
+systemctl disable userconfig.service
+systemctl mask userconfig.service
 
 apt-get update

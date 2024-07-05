@@ -15,11 +15,11 @@ variable "tz" {
 
 # Example: https://github.com/mkaczanowski/packer-builder-arm/blob/master/boards/raspberry-pi/raspbian-resize.json
 source "arm" "rpi" {
-  file_urls             = ["https://downloads.raspberrypi.org/raspios_lite_armhf/images/raspios_lite_armhf-2022-04-07/2022-04-04-raspios-bullseye-armhf-lite.img.xz"]
+  file_urls             = ["https://downloads.raspberrypi.com/raspios_lite_arm64/images/raspios_lite_arm64-2024-03-15/2024-03-15-raspios-bookworm-arm64-lite.img.xz"]
   file_target_extension = "xz"
   file_unarchive_cmd    = ["xz", "-d", "$ARCHIVE_PATH"]
   file_checksum_type    = "sha256"
-  file_checksum         = "34987327503fac1076e53f3584f95ca5f41a6a790943f1979262d58d62b04175"
+  file_checksum         = "58a3ec57402c86332e67789a6b8f149aeeb4e7bb0a16c9388a66ea6e07012e45"
   image_build_method    = "resize"
   image_path            = "/opt/build.img"
   image_size            = "3G"
@@ -41,8 +41,8 @@ source "arm" "rpi" {
     mountpoint   = "/"
   }
   image_chroot_env             = ["PATH=/usr/local/bin:/usr/local/sbin:/usr/bin:/usr/sbin:/bin:/sbin"]
-  qemu_binary_destination_path = "/usr/bin/qemu-arm-static"
-  qemu_binary_source_path      = "/usr/bin/qemu-arm-static"
+  qemu_binary_destination_path = "/usr/bin/qemu-aarch64-static"
+  qemu_binary_source_path      = "/usr/bin/qemu-aarch64-static"
 }
 
 build {

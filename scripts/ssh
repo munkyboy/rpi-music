@@ -1,12 +1,11 @@
 #!/usr/bin/env bash
 set -eo pipefail
 
-# default password is not set in bullseye
-echo pi:raspberry | chpasswd
-
-systemctl enable ssh.service
+raspi-config nonint do_ssh 0
 echo "PasswordAuthentication no" >> /etc/ssh/sshd_config
 
+# default password is not set in bullseye
+echo pi:raspberry | chpasswd
 mkdir -p ~pi/.ssh
 cat /tmp/id_rsa.pub >> ~pi/.ssh/authorized_keys
 chown -R pi:pi ~pi/.ssh
