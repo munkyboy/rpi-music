@@ -12,7 +12,7 @@ ENV CARGO_HOME=/usr/local/cargo \
 # keep rust toolchain version aligned with librespot
 # https://github.com/librespot-org/librespot/blob/dev/.github/workflows/test.yml
 RUN curl https://sh.rustup.rs -sSf | \
-    sh -s -- --default-toolchain 1.56 -y \
+    sh -s -- --default-toolchain 1.81 -y \
  && rustup target add aarch64-unknown-linux-gnu
 
 RUN dpkg --add-architecture arm64 \
@@ -23,8 +23,8 @@ RUN dpkg --add-architecture arm64 \
     pkg-config:arm64
 
 RUN mkdir -p /opt/src/librespot \
- && curl -Lfq "https://github.com/librespot-org/librespot/archive/refs/tags/v0.4.1.tar.gz" | tar -C /opt/src/librespot --strip-components 1 -xzvf - \
+ && curl -Lfq "https://github.com/librespot-org/librespot/archive/refs/tags/v0.6.0.tar.gz" | tar -C /opt/src/librespot --strip-components 1 -xzvf - \
  && cd /opt/src/librespot \
  && mkdir -p .cargo \
  && printf '[target.aarch64-unknown-linux-gnu]\nlinker = "aarch64-linux-gnu-gcc"' >> .cargo/config \
- && cargo build --target=aarch64-unknown-linux-gnu --release --no-default-features --features "alsa-backend with-dns-sd"
+ && cargo build --target=aarch64-unknown-linux-gnu --release --no-default-features --features "alsa-backend with-avahi"

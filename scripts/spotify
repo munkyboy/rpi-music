@@ -18,12 +18,12 @@ ExecStart=/usr/local/bin/librespot \
           --name multizone \
           --device-type speaker \
           --bitrate 320 \
+          --autoplay on \
           --volume-ctrl fixed \
           --initial-volume 100 \
           --enable-volume-normalisation \
           --normalisation-pregain 0 \
           --normalisation-gain-type track \
-          --autoplay \
           --onevent /usr/local/bin/spotify-event-handler
 Restart=always
 RestartSec=2
@@ -34,14 +34,14 @@ EOF
 systemctl enable spotify.service
 
 # control the amp on spotify events
-# list of events: https://github.com/librespot-org/librespot/blob/v0.1.6/src/player_event_handler.rs
+# list of events: https://github.com/librespot-org/librespot/blob/v0.6.0/src/player_event_handler.rs
 cat <<-'EOF' > /usr/local/bin/spotify-event-handler
 #!/usr/bin/env bash
 set -eo pipefail
 
 echo "$PLAYER_EVENT" > /var/run/spotify-last-event
 case $PLAYER_EVENT in
-  started|playing|changed|preloading)
+  session_connected|session_client_changed|playing)
     curl -f -X PUT -d power=1 http://localhost:8080/power
     ;;
 esac

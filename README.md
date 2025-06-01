@@ -41,7 +41,10 @@ To boot the image locally for testing, run:
 make run
 ```
 
-use default raspbian credentials for console login (pi/raspberry)
+In another terminal:
+```
+ssh -p 2222 pi@localhost
+```
 
 ## Deploying
 
